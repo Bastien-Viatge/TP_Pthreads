@@ -8,7 +8,7 @@ int is_prime( uint64_t p )
 	int q =2;
 	//for (uint64_t q ; q < sqrt(p); q++ )
 
-	while( q*q < p)
+	while( q*q <  p )
 	{
 		if ( p%q == 0 )
 		{
@@ -26,7 +26,9 @@ void is_prime_factor( uint64_t n )
 	while( i<n)
 	{
 		while ( !is_prime(i) )
-		i++;
+		{
+			i++;
+		}
 		while( n%i == 0 )
 		{
 			printf( "%lu ",i);
@@ -34,21 +36,27 @@ void is_prime_factor( uint64_t n )
 		}
 	i++;
 	}
+	printf("\n");
 }
 
 
 int main()
 {
-	printf("Entree dans Pthread \n");
-	FILE* fichier = fopen("bumers.txt");
+	printf(" Pthread begin \n");
+	FILE* fichier = fopen("numbers.txt","r+");
 	if( fichier != NULL )
 	{
-		int i;
-		while(getline(fichier))
+		uint64_t i=1;
+		int nbtokens=1;
+		// In order to enter in while
+		while(nbtokens != 0 && nbtokens != EOF)
 		{
-			is_prime_factor();
+			nbtokens=fscanf(fichier,"%lu ",&i);
+			is_prime_factor(i);
+
 		}
-		printf("Fin de Pthread \n");
+		printf(" Pthread end\n");
+
 	}
 	return 0;
 }
