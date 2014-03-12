@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-int mai(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
     uint64_t number ;
     uint32_t  * word = (void*) & number ;

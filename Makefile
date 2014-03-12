@@ -10,10 +10,10 @@ run: bin/factorisator
 
 
 bin/generator: src/generator.c
-	gcc -Wall -o bin/generator src/generator.c
+	gcc -Wall -std=c99 -o bin/generator src/generator.c
 
 bin/factorisator: src/main.c
-	gcc -Wall src/main.c -o bin/factorisator
+	gcc -Wall -std=c99 src/main.c -o bin/factorisator
 
 clean:
 	rm -f bin/*

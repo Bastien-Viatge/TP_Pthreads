@@ -5,16 +5,12 @@
 
 int is_prime( uint64_t p )
 {
-	int q =2;
-	//for (uint64_t q ; q < sqrt(p); q++ )
-
-	while( q*q <  p )
+	for (uint64_t q = 2 ; q < sqrt(p); q++ )
 	{
 		if ( p%q == 0 )
 		{
 			return 0;
 		}
-		q++;
 	}
 	return 1;
 }
