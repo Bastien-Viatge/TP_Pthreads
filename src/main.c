@@ -23,22 +23,28 @@
 
 void print_prime_factor( uint64_t n )
 {
-	char * c;
-	c = strcat((char *)n," :");
-	uint64_t i = 2 ;
-	while( i<(uint64_t)sqrt(n))
+	
+	printf("%lu :",n);
+	uint64_t i ;
+	
+	uint64_t racine =(uint64_t)sqrt(n);
+	
+	for( i= 2 ; i<=racine ; i++)
 	{
-		while( n%i == 0 )
+		if( n%i == 0 )
 		{
-			c=strcat(c," ");
-			c=strcat(c,(char *)i);
+			
+			//c=strcat(c," ");
+			//c=strcat(c,itoa(i,c,10));
+			printf(" %lu",i);
 			n /= i;
-		
+			i--;
+			
 		}
-	//if ( n%i != 0 )
-		i++;
+		
+		
 	}
-	printf("%s\n",c);
+	printf(" %lu \n",n);
 }
 
 
