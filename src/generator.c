@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
     uint64_t *previous_numbers;
 
     // how many numbers to generate
-    int quantity = 20;
+    int quantity =5;
     if( argc > 1)
         quantity=atoi(argv[1]);
 

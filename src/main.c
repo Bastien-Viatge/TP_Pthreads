@@ -7,7 +7,7 @@
 int is_prime( uint64_t p )
 {
 	uint64_t q = 2;
-	for (q = 2; q < (uint64_t)sqrt(p); q++ )
+	for (q = 2; q < (uint64_t)sqrt(p); q++ )  //comparaison jusqu'à la racine seulement
 	{
 		if ( p%q == 0 )
 		{
@@ -37,6 +37,7 @@ void print_prime_factor( uint64_t n )
 	printf("\n");
 }
 
+/*
 void pthreadMain()
 //Starting function for threads
 {
@@ -54,31 +55,39 @@ void pthreadMain()
 		}
 	}
 }
+*/
+
 
 int main()
 {
-	pthread_t pthread1,pthread2;
-
-//	pthread_mutex_init(pthread1,NULL);
-//	pthread_mutex_init(pthread2,NULL);
 	FILE* fichier = fopen("numbers.txt","r+");
 	if( fichier != NULL )
 	{
 		// In order to enter in while =1
 		uint64_t i = 1;
-		uint64_t j = 1;
-		int nbtokens = 1;
+		int nbtokens;
+		//int64_t j = 1;
+		nbtokens=fscanf(fichier,"%lu",&i);
 		while(nbtokens != 0 && nbtokens != EOF)
 		{
-			nbtokens=fscanf(fichier,"%lu %lu",&i,&j);
-			pthread_create(&pthread1,NULL, print_prime_factor,i);
-			pthread_create(&pthread1,NULL, print_prime_factor,j);
-			pthread_join(pthread1,NULL);
-			pthread_join(pthread2,NULL);
+			printf("nbtokens %d : ",nbtokens);
+			print_prime_factor(i);
+			nbtokens=fscanf(fichier,"%lu",&i);
+
 		}
 	}
-		printf(" Pthread end\n");
-
-
+	
+	/*
+	int crdu;
+	pthread_t = tid1,tid2;
+	
+	
+	
+	
+	*/
+	
+	
+	
+	
 	return 0;
 }
