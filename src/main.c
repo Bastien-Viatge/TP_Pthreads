@@ -5,10 +5,10 @@
 #include <math.h>
 #include <pthread.h>
 
-static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-static 	FILE* fichier;
+//static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+//static 	FILE* fichier;
 
-int is_prime( uint64_t p )
+/*int is_prime( uint64_t p )
 {
 	uint64_t q = 2;
 	for (q = 2; q < (uint64_t)sqrt(p); q++ )  //comparaison jusqu'à la racine seulement
@@ -19,24 +19,23 @@ int is_prime( uint64_t p )
 		}
 	}
 	return 1;
-}
+}*/
 
 void print_prime_factor( uint64_t n )
 {
 	char * c;
 	c = strcat((char *)n," :");
 	uint64_t i = 2 ;
-	while( i<n)
+	while( i<(uint64_t)sqrt(n))
 	{
-		while ( !is_prime(i) )
-			i++;
 		while( n%i == 0 )
 		{
 			c=strcat(c," ");
 			c=strcat(c,(char *)i);
 			n /= i;
+		
 		}
-	if ( n%i != 0 )
+	//if ( n%i != 0 )
 		i++;
 	}
 	printf("%s\n",c);
@@ -99,8 +98,8 @@ int main()
 	
 	
 
-			printf("nbtokens : %d \n",nbtokens);
-	pthread_exit( (void *)&nbtokens);
+	//printf("nbtokens : %d \n",nbtokens);
+	//pthread_exit( (void *)&nbtokens);
 }//Fin de pthread Main
 
 
