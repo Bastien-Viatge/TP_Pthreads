@@ -5,8 +5,8 @@
 #include <math.h>
 #include <pthread.h>
 
-//static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-//static 	FILE* fichier;
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+static 	FILE* fichier;
 
 /*int is_prime( uint64_t p )
 {
@@ -44,35 +44,37 @@ void print_prime_factor( uint64_t n )
 		
 		
 	}
-	printf(" %lu \n",n);
+	if ( n !=1)
+		printf(" %lu \n",n);
 }
 
 
-/*
-void pthreadMain()
 
-void *pthreadMainBoucle()
+
+void *pthreadMain()
 
 //Starting function for threads
 //call print_prime_factor(i) for each number of the file
 {
-		pthread_t tid = pthread_self( );
+	//pthread_t tid = pthread_self( );
 
-		uint64_t i = 1;
-		int nbtokens = 1;
+	uint64_t nbreLu = 1;
+	int nbtokens = 1;
+	while (nbtokens != 0 && nbtokens != EOF) 
+	{ 
+		pthread_mutex_lock( &mutex);
+		nbtokens=fscanf(fichier,"%lu",&nbreLu);
+		pthread_mutex_unlock( &mutex);
+		print_prime_factor(nbreLu);
 
-			pthread_mutex_lock( &mutex);
-			nbtokens=fscanf(fichier,"%lu",&i);
-			pthread_mutex_unlock( &mutex);
-			print_prime_factor(i);
-
-		}
 	}
+	pthread_exit( NULL);
 }
-*/
 
 
-int main()
+
+/*
+int main() //Question 3
 {
 	FILE* fichier = fopen("numbers.txt","r+");
 	if( fichier != NULL )
@@ -91,78 +93,67 @@ int main()
 		}
 	}
 	
-	/*
-	int crdu;
-	pthread_t = tid1,tid2;
-	
-	
-	
-	
-	*/
-	
-	
-	
-	
-
-	//printf("nbtokens : %d \n",nbtokens);
-	//pthread_exit( (void *)&nbtokens);
 }//Fin de pthread Main
 
+*/
 
-/*
-int main()
 
+void *pthreadMainBoucle(void *i)
 {
-	//Open "numbers.txt"
-	fichier = fopen("numbers.txt","r+");
-	if( fichier != NULL )
-	{
-		pthread_t pthread1,pthread2;
-		int crdu;
-
-		//--------------------------------------Initialisation du mutex
-		pthread_mutex_init(&mutex,NULL);
-
-		//---------------------------------------------Creating pthread
-		// In order to enter in while : nbtoki = 1
-		int * nbtok1 = 1;
-		int * nbtok2 = 1;
-		while(*nbtok1 >0 && *nbtok2>0)
-		{
-			crdu = pthread_create( &pthread1, NULL, pthreadMainBoucle, NULL);
-			if ( crdu != 0 )
-			{	printf("Error : code=%d",crdu);
-			exit ( -1);
-			}
-			crdu = pthread_create( &pthread2, NULL, pthreadMainBoucle,NULL);
-			if ( crdu != 0 )
-			{	printf("Error : code=%d",crdu);
-			exit ( -1);
-			}
-
-			//------------------------------------------------Join pthread
-			crdu = pthread_join(pthread1,(int *)nbtok1);
-			if ( crdu != 0 )
-			{	printf("Error : code=%d",crdu);
-			exit ( -1);
-			}
-			crdu = pthread_join(pthread2,(int *)nbtok2);
-			if ( crdu != 0 )
-			{	printf("Erreur : code=%d",crdu);
-			exit ( -1);
-			}
-		}
-		//----------------------------------------Destruction du mutex
-		crdu = pthread_mutex_destroy( &mutex);
-		if ( crdu != 0 )
-		{   printf("Erreur : code=%d",crdu);
-		exit( -1);
-		}
-
-		printf(" Pthread end\n");
-	}
->>>>>>> cbc81897c10f6326699bdd915a4e749ddc7a6d02
-	return 0;
+	uint64_t number = (uint64_t)i;
+	print_prime_factor(number);
+	pthread_exit( NULL);
 }
-* */
+
+
+
+int main() { 
+	//Open "numbers.txt" 
+	fichier = fopen("numbers.txt","r+"); 
+	if( fichier != NULL ) 
+	{ 
+		pthread_t pthread1,pthread2; 
+		int crdu; 
+		//--------------------------------------Initialisation du mutex 
+		pthread_mutex_init(&mutex,NULL); 
+		
+		//---------------------------------------------Creating pthread 
+ 
+
+
+		crdu = pthread_create( &pthread1, NULL, pthreadMain, NULL);
+		if ( crdu != 0 ) 
+		{
+			printf("Error : code=%d",crdu); 
+			exit ( -1); 
+		}
+		crdu = pthread_create( &pthread2, NULL, pthreadMain, NULL);
+		if ( crdu != 0 ) 
+		{ 
+			printf("Error : code=%d",crdu);
+			exit ( -1);
+		} 
+		crdu = pthread_join(pthread1, NULL);
+		if ( crdu != 0 ) {
+			printf("Error : code=%d",crdu);
+			exit ( -1);
+		} 
+		crdu = pthread_join(pthread2, NULL);
+		if ( crdu != 0 ) 
+		{ 
+			printf("Erreur : code=%d",crdu);
+			exit ( -1);
+		}
+	} 
+	/*
+	//------------------------------------------------Join pthread 
+	//---------------------------------------Destruction du mutex 
+	crdu = pthread_mutex_destroy( &mutex);
+	if ( crdu != 0 ) 
+	{ printf("Erreur : code=%d",crdu); exit( -1); } printf(" Pthread end\n"); } */
+ 
+	
+	pthread_exit( NULL);
+}
+
 
