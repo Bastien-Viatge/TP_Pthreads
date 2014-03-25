@@ -4,23 +4,29 @@
 #include <stdint.h>
 #include <math.h>
 #include <pthread.h>
-#define MAX_FACTORS 10000
+#define MAX_FACTORS 64
 #define MAX_MEM 1000
 
 
 //Structure de donnée C avec iterateur qui parcoure next pour stocker les nombres premiers
+
+
 struct primeFactorMemory_t{
-	uint64_t number;
+	uint64_t number; 
 	uint64_t factors[MAX_FACTORS];
-	primeFactorMemory_t * next;
+	int nbFactors;
+
 };
 
 
 
 static pthread_mutex_t mutexPrintfactors = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t mutexFile = PTHREAD_MUTEX_INITIALIZER;
-static 	FILE* fichier;
-static primeFactorMemory_t primeFactorMemory[MAX_MEM];
+static pthread_mutex_t mutexAccessMemory = PTHREAD_MUTEX_INITIALIZER;
+//static pthread_mutex_t mutexAccessMemoryRead = PTHREAD_MUTEX_INITIALIZER;
+static FILE* fichier;
+static int increment=1;
+static struct primeFactorMemory_t primeFactorMemory[MAX_MEM];
 
 int is_prime( uint64_t p )
 {
@@ -79,7 +85,7 @@ int main() //Question 3
 		int nbtokens;
 		//int64_t j = 1;
 		nbtokens=fscanf(fichier,"%lu",&i);
-		while(nbtokens != 0 && nbtokens != EOF)
+		while(nbtokens != 0 && nEnseignant: Salagnac Guillaumebtokens != EOF)
 		{
 			printf("nbtokens %d : ",nbtokens);
 			print_prime_factor(i);
@@ -88,48 +94,107 @@ int main() //Question 3
 		}
 	}
 	
-}//Fin de pthread Main
+}//Fin de pthread MainEnseignant: Salagnac Guillaume
 
 */
 
 
 
 
-
+/*
 int getMaxFactors()
 {
 	return (int)sqrt(pow(2,64)-1);
 }
+*/
 
-
-int get_prime_factors( uint64_t n, uint64_t* dest )
+int in_memory(uint64_t n)
 {
+	
+	int i;
+	for(i=1 ; i < increment ; i++)
+	{
+		if( n == primeFactorMemory[i].number)
+		{	
+			return i; 
+		}
+	}
+	return 0;
+}	
+		
+
+int get_prime_factors( uint64_t n, uint64_t dest[MAX_FACTORS] )
+{
+
+	uint64_t temp = n;
+	pthread_mutex_lock(&mutexAccessMemory);
+	int incrementTmp = increment;	
+	//Mutex here
+	increment++;
+	pthread_mutex_unlock(&mutexAccessMemory);
 
 	uint64_t divider;
 	int factorNumber = 0;
-	uint64_t racine =(uint64_t)sqrt(n);
-
+	uint64_t racine =(uint64_t)sqrt(temp);
+	
 	for( divider= 2 ; divider<=racine ; divider++)
 	{
-		if( n%divider == 0 )
+		pthread_mutex_lock(&mutexAccessMemory);
+		int indice =in_memory(temp);
+		pthread_mutex_unlock(&mutexAccessMemory);	
+		if(indice>0)
 		{
-			dest[factorNumber++] = divider;
-			n /= divider;
-			divider--;
-
+			//printf("On utilise la memoire\n");
+			pthread_mutex_lock(&mutexAccessMemory);
+			//factorNumber += primeFactorMemory[indice].nbFactors;
+			int i;
+			
+			for(i=1 ; i <= primeFactorMemory[indice].nbFactors ; i++)
+			{
+				dest[factorNumber] = primeFactorMemory[indice].factors[i];
+				//printf("factorNumber : %d \n", factorNumber);
+				//printf("dest : %lu \n",dest[factorNumber]);
+				factorNumber++;	
+			}
+			pthread_mutex_unlock(&mutexAccessMemory);		
+			return factorNumber;
 		}
+		else if( temp%divider == 0 )
+		{	
+			//printf("pas mémoire \n");
+			dest[factorNumber++] = divider;
 
+			pthread_mutex_lock(&mutexAccessMemory);
+			primeFactorMemory[incrementTmp].factors[factorNumber] = divider;
+			//printf("valeur mise en mémoire : %lu \n",primeFactorMemory[incrementTmp].factors[factorNumber]);
+			pthread_mutex_unlock(&mutexAccessMemory);
 
+			temp /= divider;
+			divider--;
+		}
 	}
-	if ( n !=1)
+	if ( temp !=1)
 	{
-		dest[factorNumber++] = n;
+		dest[factorNumber++] = temp;
+		pthread_mutex_lock(&mutexAccessMemory);
+		primeFactorMemory[incrementTmp].factors[factorNumber] = temp;
+		//printf("valeur mise en mémoire : %lu \n",primeFactorMemory[incrementTmp].factors[factorNumber]);
+		pthread_mutex_unlock(&mutexAccessMemory);
+		
 	}
 
+	pthread_mutex_lock(&mutexAccessMemory);
+	if (incrementTmp < MAX_MEM)
+	{
+		//primeFactorMemory[incrementTmp].factors = dest;
+		primeFactorMemory[incrementTmp].number = n;
+		primeFactorMemory[incrementTmp].nbFactors = factorNumber;
 
+		//printf("ajout dans tableau.. \n");
+	}
+	pthread_mutex_unlock(&mutexAccessMemory);
 	return factorNumber;
 }
-
 
 void print_prime_factors(uint64_t n) {
   uint64_t factors[MAX_FACTORS];
@@ -137,6 +202,7 @@ void print_prime_factors(uint64_t n) {
 
   // We use a mutex to guarantee that output will appear in order
   pthread_mutex_lock(&mutexPrintfactors);
+ // printf("factorNumber final : %d \n ",factorNumber); 
   printf("%lu: ", n);
   for (int i = 0; i < factorNumber; ++i) {
     printf("%lu ", factors[i]);
@@ -162,13 +228,16 @@ void *pthreadMain()
 
 	uint64_t nbreLu = 1;
 	int nbtokens = 1;
+	pthread_mutex_lock( &mutexFile);
+	nbtokens=fscanf(fichier,"%lu",&nbreLu);
+	pthread_mutex_unlock( &mutexFile);
+
 	while (nbtokens != 0 && nbtokens != EOF)
 	{
+		print_prime_factors(nbreLu);
 		pthread_mutex_lock( &mutexFile);
 		nbtokens=fscanf(fichier,"%lu",&nbreLu);
 		pthread_mutex_unlock( &mutexFile);
-		print_prime_factors(nbreLu);
-
 	}
 	pthread_exit( NULL);
 }
@@ -186,6 +255,8 @@ int main() {
 		//--------------------------------------Initialisation du mutex 
 		pthread_mutex_init(&mutexFile,NULL);
 		pthread_mutex_init(&mutexPrintfactors,NULL);
+		pthread_mutex_init(&mutexAccessMemory,NULL);
+		//pthread_mutex_init(&mutexAccessMemoryRead,NULL);
 
 		//---------------------------------------------Creating pthread 
  
@@ -228,7 +299,17 @@ int main() {
 	{
 		printf("Erreur : code=%d",crdu); exit( -1);
 	}
-
+	crdu = pthread_mutex_destroy( &mutexAccessMemory);
+	if ( crdu != 0 ) 
+	{
+		printf("Erreur : code=%d",crdu); exit( -1);
+	}
+/*
+	crdu = pthread_mutex_destroy( &mutexAccessMemoryRead);
+	if ( crdu != 0 ) 
+	{
+		printf("Erreur : code=%d",crdu); exit( -1);
+	}*/
 	pthread_exit( NULL);
 }
 
